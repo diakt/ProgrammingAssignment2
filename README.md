@@ -22,26 +22,42 @@ special object that stores a numeric vector and caches its mean.
 The first function, `makeVector` creates a special "vector", which is
 really a list containing a function to
 
-1.  set the value of the vector
-2.  get the value of the vector
-3.  set the value of the mean
-4.  get the value of the mean
+1.  set the value of the vector - so instantiate matrix
+2.  get the value of the vector - so get value of matrix, the return?
+3.  set the value of the mean - so calculate invert
+4.  get the value of the mean - return invert.
 
 <!-- -->
 
     makeVector <- function(x = numeric()) {
             m <- NULL
-            set <- function(y) {
+            
+            set <- function(y) {                    - the define mat
                     x <<- y
                     m <<- NULL
             }
-            get <- function() x
-            setmean <- function(mean) m <<- mean
-            getmean <- function() m
-            list(set = set, get = get,
+            get <- function() x                     - the return mat
+            setmean <- function(mean) m <<- mean    - the define invert
+            getmean <- function() m                 - the return invert
+            
+            
+            list(set = set, get = get,      - this is returned
                  setmean = setmean,
                  getmean = getmean)
     }
+    
+    I think it's important to note that both the gets have x and m
+    I think this is about the function definition, the syntax of return
+    I write these functions for the matrices, I can probably figure out
+    how to calc the inverse of a matrix
+    It will be a matrix passed, n'cest pas?
+    Yeah, so dimensions a biggy. Invert no problem
+    Not sure how this will be difficult, just a little playing
+    The dependency of functions is a little strange
+    Why not use getmean all the time, and just have it internally
+    set a mean within the first object? 
+    Maybe this is an actual downside of lexical scoping?
+    The above is a matrix creator, so a call on that
 
 The following function calculates the mean of the special "vector"
 created with the above function. However, it first checks to see if the
@@ -49,17 +65,29 @@ mean has already been calculated. If so, it `get`s the mean from the
 cache and skips the computation. Otherwise, it calculates the mean of
 the data and sets the value of the mean in the cache via the `setmean`
 function.
+        
+     Oh, the second one is the bossy mom
+     It calls, and it initially sees nothing
+     It TELLS the first function to set its mean
+     Next time, it won't receive a null on request
+     
+     I imagine this could mildly save some computational time
+     If the object is never called, it would be a waste to precalc it
+     Like first object creates all these values ahead of time
+     100 objects, could be 1000 calcs per to prebake all means
+     If only calls three of them, knows afterward, quite efficient.
+     Cool, this is cool.
 
     cachemean <- function(x, ...) {
-            m <- x$getmean()
-            if(!is.null(m)) {
-                    message("getting cached data")
+            m <- x$getmean() - this is either nothing or stored
+            if(!is.null(m)) { - if there is a cached data return
+                    message("getting cached data") - it already knows
                     return(m)
             }
             data <- x$get()
             m <- mean(data, ...)
-            x$setmean(m)
-            m
+            x$setmean(m)            - 
+            m                       - this is the eventual passed invert []
     }
 
 ### Assignment: Caching the Inverse of a Matrix
